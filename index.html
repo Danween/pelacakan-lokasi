@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Maps with Geolocation</title>
+  </head>
+  <body>
+    <h1>Google Maps - Location</h1>
+    <iframe
+      id="map"
+      width="80%"
+      height="400px"
+      frameborder="0"
+      style="border: 0"
+    ></iframe>
+    <p id="status"></p>
+    <p>Latitude: <span id="latitude"></span></p>
+    <p>Longitude: <span id="longitude"></span></p>
+
+    <script>
+      window.onload = function () {
+        const status = document.getElementById("status");
+        const latitudeSpan = document.getElementById("latitude");
+        const longitudeSpan = document.getElementById("longitude");
+        const mapIframe = document.getElementById("map");
+
+        // Function to fetch geolocation
+        function fetchLocation() {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              // Success: Get latitude and longitude
+              const latitude = position.coords.latitude;
+              const longitude = position.coords.longitude;
+
+              // Display latitude and longitude on the page
+              latitudeSpan.textContent = latitude;
+              longitudeSpan.textContent = longitude;
+              status.textContent = "Location fetched successfully!";
+
+              // Construct Google Maps URL
+              const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}&hl=es;z=14&output=embed`;
+              mapIframe.src = mapUrl;
+            },
+            (error) => {
+              // Error handling
+              switch (error.code) {
+                case error.PERMISSION_DENIED:
+                  status.textContent =
+                    "User denied the request for Geolocation.";
+                  alert(
+                    "Please allow location access in your browser settings to use this feature."
+                  );
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  status.textContent = "Location information is unavailable.";
+                  alert("Unable to fetch your location. Please try again.");
+                  break;
+                case error.TIMEOUT:
+                  status.textContent =
+                    "The request to get user location timed out.";
+                  alert("Fetching location timed out. Please try again.");
+                  break;
+                default:
+                  status.textContent = "An unknown error occurred.";
+                  alert(
+                    "An unknown error occurred while fetching your location."
+                  );
+              }
+            }
+          );
+        }
+
+        // Check permissions for geolocation
+        if (navigator.permissions) {
+          navigator.permissions
+            .query({ name: "geolocation" })
+            .then((result) => {
+              if (result.state === "granted") {
+                status.textContent = "Access to location granted.";
+                fetchLocation();
+              } else if (result.state === "prompt") {
+                status.textContent = "Requesting location permission...";
+                fetchLocation();
+              } else if (result.state === "denied") {
+                status.textContent = "Access to location denied.";
+                alert(
+                  "Location access has been denied. Please enable it in your browser settings."
+                );
+              }
+              // Listen for changes in permission state
+              result.onchange = () => {
+                if (result.state === "granted") {
+                  status.textContent = "Location permission granted.";
+                  fetchLocation();
+                } else if (result.state === "denied") {
+                  status.textContent = "Location permission denied.";
+                }
+              };
+            });
+        } else if (navigator.geolocation) {
+          status.textContent = "Checking location permission...";
+          fetchLocation();
+        } else {
+          status.textContent = "Geolocation is not supported by this browser.";
+          alert("Your browser does not support geolocation.");
+        }
+      };
+    </script>
+  </body>
+</html>
