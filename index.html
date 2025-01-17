@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="map"></div>
+<p>Latitude: <span id="latitude"></span></p>
+<p>Longitude: <span id="longitude"></span></p>
+
+<script>
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                
+                // Menampilkan latitude dan longitude di halaman
+                document.getElementById('latitude').innerText = latitude;
+                document.getElementById('longitude').innerText = longitude;
+                
+                // Menampilkan peta di div dengan ID 'map'
+                document.getElementById('map').innerHTML = 
+                '<iframe width="1400" height="700" src="https://maps.google.com/maps?q='
+                + latitude + ',' + longitude + '&z=18&output=embed"></iframe>';
+            },
+            (error) => {
+                console.error("Error getting location: ", error);
+                // Menangani error, misalnya menampilkan pesan
+                document.getElementById('map').innerHTML = 
+                '<p>Gagal mendapatkan lokasi. Pastikan GPS diaktifkan dan izinkan browser mengakses lokasi.</p>';
+            },
+            {
+                enableHighAccuracy: true,  // Meminta akurasi tinggi (menggunakan GPS)
+                timeout: 5000,  // Maksimal waktu tunggu 5 detik
+                maximumAge: 0   // Tidak menggunakan lokasi cache
+            }
+        );
+    } else {
+        console.log("Geolocation tidak didukung oleh browser ini.");
+    }
+</script>
+
+
+
+</body>
+</html>
